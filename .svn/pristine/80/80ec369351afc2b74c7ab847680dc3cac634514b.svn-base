@@ -1,0 +1,98 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Scanner;
+
+/**
+ * Put a short phrase describing the program here.
+ *
+ * @author Mihai Petrescu and Christie Brandao
+ *
+ */
+public final class Main {
+
+    /**
+     * Private constructor so this utility class cannot be instantiated.
+     */
+    private Main() {
+    }
+
+    /**
+     * Main method.
+     *
+     * @param args
+     *            the command line arguments
+     */
+    public static void main(String[] args) {
+        /*
+         * Getting input file
+         */
+        System.out.print("Enter input: ");
+        Scanner keyboardIn = new Scanner(System.in);
+        String fileIn = keyboardIn.nextLine();
+        BufferedReader input;
+
+        try {
+            input = new BufferedReader(new FileReader(fileIn));
+        } catch (IOException e) {
+            System.err.println("Error opening file.");
+            return;
+        }
+
+        /*
+         * Getting output file
+         */
+        System.out.print("Enter output: ");
+        String fileOut = keyboardIn.nextLine();
+        PrintWriter output;
+        try {
+            output = new PrintWriter(
+                    new BufferedWriter(new FileWriter(fileOut)));
+
+        } catch (IOException e) {
+            System.err.println("Error opening output file.");
+            return;
+        }
+
+        /*
+         * Getting count of words
+         */
+        System.out.print("Enter count (leave empty for all words): ");
+        keyboardIn = new Scanner(System.in);
+        String c = keyboardIn.nextLine();
+        int count = c.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(c);
+        WordCount wc = new WordCount();
+
+        try {
+            String s = input.readLine();
+            while (s != null) {
+                wc.add(s);
+                s = input.readLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading file.");
+            return;
+        }
+        wc.count();
+        HTMLGenerator.writeHTML(wc, count, fileIn, output);
+
+        /*
+         * Closing in and out streams
+         */
+        System.out.println("File written.");
+
+        try {
+            input.close();
+            keyboardIn.close();
+            output.close();
+        } catch (IOException e) {
+            System.err.println("Error closing stream.");
+            return;
+        }
+
+    }
+
+}

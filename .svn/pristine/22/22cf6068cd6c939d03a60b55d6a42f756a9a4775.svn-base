@@ -1,0 +1,107 @@
+import java.util.Comparator;
+
+import components.map.Map;
+import components.map.Map1L;
+import components.queue.Queue;
+import components.queue.Queue1L;
+import components.sortingmachine.SortingMachine;
+import components.sortingmachine.SortingMachine1L;
+
+/**
+ * Main word counting class.
+ *
+ * @author Mihai Petrescu and Christie Brandao
+ *
+ */
+public final class WordCount {
+    /**
+     * Map of words to their counts.
+     */
+    private Map<String, Integer> wordMap = new Map1L<>();
+    /**
+     * String builder for input text.
+     */
+    private StringBuilder sb = new StringBuilder();
+
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    public WordCount() {
+    }
+
+    /**
+     * Count the words in this object.
+     */
+    public void count() {
+        String text = this.sb.toString();
+
+        text = text.replaceAll("[^a-z']+", " ");
+        while (text.contains("  ")) {
+            text = text.replace("  ", " ");
+        }
+        for (String word : text.split(" ")) {
+            if (!word.equals("") && !word.equals("'")) {
+                if (this.wordMap.hasKey(word)) {
+                    int count = this.wordMap.value(word) + 1;
+                    this.wordMap.replaceValue(word, count);
+                } else {
+                    this.wordMap.add(word, 1);
+                }
+            }
+        }
+    }
+
+    /**
+     * Get the first {@code count} words by word count.
+     *
+     * @param count
+     *            Amount of words to get
+     * @return Alphabetically sorted queue of words
+     */
+    public Queue<String> getTop(int count) {
+        Queue<String> top = new Queue1L<>();
+        SortingMachine<String> sm = new SortingMachine1L<>(
+                new Comparator<String>() {
+
+                    @Override
+                    public int compare(String o1, String o2) {
+                        int i1 = WordCount.this.wordMap.value(o1),
+                                i2 = WordCount.this.wordMap.value(o2);
+                        return Integer.compare(i2, i1);
+                    }
+                });
+        for (Map.Pair<String, Integer> i : this.wordMap) {
+            sm.add(i.key());
+        }
+        sm.changeToExtractionMode();
+        for (int i = 0; i < count; i++) {
+            top.enqueue(sm.removeFirst());
+        }
+        top.sort(String.CASE_INSENSITIVE_ORDER);
+
+        return top;
+    }
+
+    /**
+     * Get {@code word}'s word count.
+     *
+     * @param word
+     *            Word to find.
+     * @return Number of occurrences of word in text
+     */
+    public int get(String word) {
+        return this.wordMap.value(word);
+    }
+
+    /**
+     * Add text to the buffer.
+     *
+     * @param text
+     *            The text to add.
+     */
+    public void add(String text) {
+        this.sb.append(text.toLowerCase());
+        this.sb.append("\n");
+    }
+
+}

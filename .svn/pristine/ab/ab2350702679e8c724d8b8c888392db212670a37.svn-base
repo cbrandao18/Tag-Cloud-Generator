@@ -1,0 +1,111 @@
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+/**
+ * Main word counting class.
+ *
+ * @author Mihai Petrescu and Christie Brandao
+ *
+ */
+public final class WordCount {
+    /**
+     * Map of words to their counts.
+     */
+    private Map<String, Integer> wordMap = new HashMap<>();
+    /**
+     * String builder for input text.
+     */
+    private StringBuilder sb = new StringBuilder();
+    private SortedSet<String> sortedKeys = new TreeSet<>(
+            new Comparator<String>() {
+
+                @Override
+                public int compare(String o1, String o2) {
+                    int i1 = WordCount.this.wordMap.get(o1),
+                            i2 = WordCount.this.wordMap.get(o2);
+                    return Integer.compare(i2, i1);
+                }
+            });
+
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    public WordCount() {
+    }
+
+    /**
+     * Count the words in this object.
+     */
+    public void count() {
+        String text = this.sb.toString();
+
+        text = text.replaceAll("[^a-z']+", " ");
+        while (text.contains("  ")) {
+            text = text.replace("  ", " ");
+        }
+        for (String word : text.split(" ")) {
+            if (!word.equals("") && !word.equals("'")) {
+                if (this.wordMap.containsKey(word)) {
+                    int count = this.wordMap.get(word) + 1;
+                    this.wordMap.replace(word, count);
+                } else {
+                    this.wordMap.put(word, 1);
+                }
+            }
+        }
+
+        this.sortKeys();
+    }
+
+    private void sortKeys() {
+        for (String key : this.wordMap.keySet()) {
+            this.sortedKeys.add(key);
+        }
+    }
+
+    /**
+     * Get the first {@code count} words by word count.
+     *
+     * @param count
+     *            Amount of words to get
+     * @return Alphabetically sorted queue of words
+     */
+    public Queue<String> getTop(int count) {
+        Queue<String> top = new PriorityQueue<>(String.CASE_INSENSITIVE_ORDER);
+        Iterator<String> iter = this.sortedKeys.iterator();
+        for (int i = 0; i < count && iter.hasNext(); i++) {
+            top.add(iter.next());
+        }
+
+        return top;
+    }
+
+    /**
+     * Get {@code word}'s word count.
+     *
+     * @param word
+     *            Word to find.
+     * @return Number of occurrences of word in text
+     */
+    public int get(String word) {
+        return this.wordMap.get(word);
+    }
+
+    /**
+     * Add text to the buffer.
+     *
+     * @param text
+     *            The text to add.
+     */
+    public void add(String text) {
+        this.sb.append(text.toLowerCase());
+        this.sb.append("\n");
+    }
+
+}
